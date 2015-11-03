@@ -13,7 +13,7 @@ var path = require('path');
 var moduleName = path.basename(__dirname);
 
 gulp.task('less', function () {
-  return gulp.src('./*.less')
+  return gulp.src('./src/*.less')
     .pipe(less())
     .pipe(gulp.dest('./.tmp/'));
 });
@@ -27,15 +27,16 @@ gulp.task('minify-css', function() {
 });
 
 gulp.task('template-cache', function () {
-  return gulp.src('./*.html')
+  return gulp.src('./src/*.html')
     .pipe(templateCache({
-      module: 'fradinni.' + moduleName
+      module: 'fradinni.' + moduleName,
+      root: 'fradinni/angular-global-loader/'
     }))
     .pipe(gulp.dest('./.tmp/'));
 });
 
 gulp.task('concat', ['less', 'minify-css', 'template-cache'], function() {
-  return gulp.src(['./*.js', '!./gulpfile.js', './.tmp/*.js'])
+  return gulp.src(['./src/*.js', './.tmp/*.js'])
     .pipe(concat('angular-global-loader.js'))
     .pipe(gulp.dest('./dist/'));
 });
@@ -46,10 +47,10 @@ gulp.task('minify-js', ['concat'], function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('dist', ['minify-js']);
+gulp.task('dist', ['concat']);
 
 gulp.task('dev', ['dist'], function() {
-  watch(['./*.js', '!gulpfile.js', './*.less', './*.html'], batch(function (events, done) {
+  watch(['./src/*.js', './src/*.less', './src/*.html'], batch(function (events, done) {
       gulp.start('dist', done);
   }));
 });

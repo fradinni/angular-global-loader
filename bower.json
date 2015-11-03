@@ -5,17 +5,11 @@
     "Nicolas FRADIN <fradinni@gmail.com>"
   ],
   "main": [
-    "dist/angular-global-loader.css"
-    "dist/angular-global-loader.js"
+    "./dist/angular-global-loader.css",
+    "./dist/angular-global-loader.js"
   ],
   "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
+  "ignore": [],
   "dependencies": {
     "angular": "~1.4.7"
   }
