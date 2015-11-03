@@ -51,17 +51,22 @@ angular.module('fradinni.angular-global-loader').service('AngularGlobalLoader', 
 angular.module('fradinni.angular-global-loader').directive('angularGlobalLoader',
 function($rootScope, $timeout, AngularGlobalLoader) {
 
-  function show(element) {
+  function show(element, fade, fadeDelay) {
     element.css('display', 'block');
     $timeout(function() {
       element.addClass('opened');
-      $rootScope.$broadcast(AngularGlobalLoader.Events.EVENT_ON_OPENED);
-    });
+      $timeout(function() {
+        $rootScope.$broadcast(AngularGlobalLoader.Events.EVENT_ON_OPENED);
+      }, fade ? fadeDelay + 50 : 30);
+    }, 50);
   }
 
-  function hide(element) {
+  function hide(element, fade, fadeDelay) {
     element.removeClass('opened');
-    $rootScope.$broadcast(AngularGlobalLoader.Events.EVENT_ON_CLOSED);
+    $timeout(function() {
+      element.css('display', 'none');
+      $rootScope.$broadcast(AngularGlobalLoader.Events.EVENT_ON_CLOSED);
+    }, fade ? fadeDelay + 50 : 30);
   }
 
   function updateProgress(progress, colorProgressLimit, color1, color2) {
@@ -95,6 +100,8 @@ function($rootScope, $timeout, AngularGlobalLoader) {
 
     // Initialize options
     var defaultOptions = {
+      fade: false,
+      fadeDelay: 400,
       autoShow: false,
       backgroundImage: {
         url: null,  // Background image url
@@ -251,9 +258,41 @@ function($rootScope, $timeout, AngularGlobalLoader) {
       }
     }
 
+    if (scope.options.fade) {
+
+      scope.options.fadeDelay = scope.options.fadeDelay || 300;
+
+      var addTransition = function(element, enable, prop, delay, ease) {
+        if (enable === true) {
+          element.css('opacity', '0');
+          element.css('transition', prop + ' ' + (delay/1000) + 's ' + ease);
+          element.css('-o-transition', prop + ' ' + (delay/1000) + 's ' + ease);
+          element.css('-moz-transition', prop + ' ' + (delay/1000) + 's ' + ease);
+          element.css('-webkit-transition', prop + ' ' + (delay/1000) + 's ' + ease);
+        } else {
+          element.css('opacity', '1');
+          element.css('transition', null);
+          element.css('-o-transition', null);
+          element.css('-moz-transition', null);
+          element.css('-webkit-transition', null);
+        }
+      }
+
+      // Get element that can fade
+      var bgImg = angular.element(document.getElementById('angular-global-loader-bg-image'));
+      var overlay = angular.element(document.getElementById('angular-global-loader-overlay'));
+      var content = angular.element(document.getElementById('angular-global-loader-content'));
+
+      // Set transition on these elements
+      addTransition(bgImg, scope.options.fade, 'opacity', scope.options.fadeDelay/2, 'linear');
+      addTransition(overlay, scope.options.fade, 'opacity', scope.options.fadeDelay, 'linear');
+      addTransition(content, scope.options.fade, 'opacity', scope.options.fadeDelay, 'linear');
+    }
+
+
     // Auto show loader
     if (scope.options.autoShow === true) {
-      show(element);
+      show(element, scope.options.fadeDelay);
     }
   }
 
@@ -267,18 +306,17 @@ function($rootScope, $timeout, AngularGlobalLoader) {
 
     // Open loader event
     scope.$on(AngularGlobalLoader.Events.EVENT_OPEN, function(event, data) {
-      console.log(data);
       if (data) {
         scope.options = data;
         init(scope, element);
       }
-      show(element);
+      show(element, scope.options.fade, scope.options.fadeDelay);
     });
 
     // Close loader event
     scope.$on(AngularGlobalLoader.Events.EVENT_CLOSE, function() {
+      hide(element, scope.options.fade, scope.options.fadeDelay);
       scope.options = null;
-      hide(element);
     });
 
     // Update loader event
