@@ -1,0 +1,22 @@
+{
+  "name": "angular-global-loader",
+  "version": "0.0.1",
+  "authors": [
+    "Nicolas FRADIN <fradinni@gmail.com>"
+  ],
+  "main": [
+    "dist/angular-global-loader.css"
+    "dist/angular-global-loader.js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.7"
+  }
+}
